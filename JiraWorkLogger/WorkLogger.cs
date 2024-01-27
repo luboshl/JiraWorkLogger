@@ -1,21 +1,49 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
-using Microsoft.Extensions.Configuration;
+﻿using System.Text;
 using Microsoft.Extensions.Logging;
 
 namespace JiraWorkLogger;
 
 public class WorkLogger(
     ILogger<WorkLogger> logger,
-    IConfiguration configuration,
     HttpClient httpClient)
 {
     public async Task Run()
     {
-        var issueKey = "HL-193";
-        var timeToLog = TimeSpan.FromHours(3.5);
-        var currentOffset = DateTimeOffset.Now.Offset;
-        await LogWork(issueKey, new DateTimeOffset(2024, 1, 1, 0, 0, 0, currentOffset), timeToLog);
+        logger.LogInformation("Paste input and press Enter");
+
+        var currentLine = Console.ReadLine();
+        var input = new List<string>();
+
+        while (currentLine?.Trim() != "")
+        {
+            input.Add(currentLine!);
+            currentLine = Console.ReadLine();
+        }
+
+        var workLogs = Parser.ParseInput(input);
+
+        foreach (var workLog in workLogs)
+        {
+            logger.LogInformation("{IssueKey} {Date} -> {Time}", workLog.IssueKey, workLog.Date, workLog.TimeInHours);
+        }
+
+        foreach (var group in workLogs.GroupBy(x => x.IssueKey).OrderBy(x => x.Key))
+        {
+            logger.LogInformation("Summary of {IssueKey}: {Sum}", group.Key, group.Sum(x => x.TimeInHours));
+        }
+
+        logger.LogInformation("Press Enter to continue or Ctrl+C to cancel");
+        Console.ReadLine();
+
+        foreach (var workLog in workLogs.OrderBy(x => x.IssueKey).ThenBy(x => x.Date))
+        {
+            var issueKey = workLog.IssueKey;
+            var currentOffset = DateTimeOffset.Now.Offset;
+            var dateTime = new DateTimeOffset(workLog.Date, new TimeOnly(0), currentOffset);
+            var timeToLog = TimeSpan.FromHours((double)workLog.TimeInHours);
+
+            await LogWork(issueKey, dateTime, timeToLog);
+        }
     }
 
     private async Task LogWork(string issueKey, DateTimeOffset datetime, TimeSpan timeToLog)
@@ -47,6 +75,9 @@ public class WorkLogger(
         else
         {
             logger.LogError("Failed with {StatusCode} - {Result}", response.StatusCode, result);
+
+            logger.LogInformation("Press Enter to continue or Ctrl+C to cancel");
+            Console.ReadLine();
         }
     }
 }
