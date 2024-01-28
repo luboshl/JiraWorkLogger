@@ -1,14 +1,18 @@
 ﻿using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace JiraWorkLogger;
 
 public class WorkLogger(
     ILogger<WorkLogger> logger,
-    HttpClient httpClient)
+    HttpClient httpClient,
+    IConfiguration configuration)
 {
     public async Task Run()
     {
+        logger.LogInformation("Configured base URL: {BaseUrl}", configuration["app:baseUrl"]); 
+        logger.LogInformation("Configured username: {Username}", configuration["app:username"]); 
         logger.LogInformation("Paste input and press Enter");
 
         var currentLine = Console.ReadLine();
