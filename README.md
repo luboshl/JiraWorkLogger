@@ -4,7 +4,7 @@
 
 A simple console application created for my own needs. It allows to create work logs in Jira issues from Excel records (or from any similarly formatted text).
 
-![Excel - select range](./assets/images/excel-range-select.png)
+<img src="./assets/images/excel-range-select.png" alt="Excel - select range" width="200" height="auto">
 
 For the records in the image above, it creates the following work logs in Jira issues:
 - MBC-23: Jan 2 -> 8h
@@ -46,8 +46,8 @@ dotnet user-secrets set "app:apiToken" "XYZ.........."
     ```
 - Paste text from Excel (or the direct text) into console when asked by the application
 - Press <kbd>Enter</kbd>
-- Check recapitulation of parsed data
-  ![Worklog recapitulation](./assets/images/worklog-recap.png)
+- Check recapitulation of parsed data  
+  <img src="./assets/images/worklog-recap.png" alt="Worklog recapitulation" width="600" height="auto">  
   - You can check summary per issue key
 - Press <kbd>Enter</kbd>
 - Watch console and enjoy as you work is logged in Jira issues 🎉
