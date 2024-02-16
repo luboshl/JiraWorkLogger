@@ -36,6 +36,7 @@ public class WorkLogger(
             logger.LogInformation("Summary of {IssueKey}: {Sum}", group.Key, group.Sum(x => x.TimeInHours));
         }
 
+        logger.LogInformation("Total summary: {Sum}", workLogs.Sum(x => x.TimeInHours));
         logger.LogInformation("Press Enter to continue or Ctrl+C to cancel");
         Console.ReadLine();
 
