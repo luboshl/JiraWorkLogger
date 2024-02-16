@@ -20,7 +20,7 @@ public static class Parser
         var timeLines = input
             .Skip(1)
             .Select(line => line
-                .Split("\t", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .Split("\t", StringSplitOptions.TrimEntries)
                 .ToList())
             .Select(line => new
             {
@@ -60,6 +60,11 @@ public static class Parser
 
     private static decimal ParseDecimal(string decimalString)
     {
+        if (string.IsNullOrWhiteSpace(decimalString))
+        {
+            return 0;
+        }
+
         decimalString = decimalString.Replace(",", ".");
         return decimal.Parse(decimalString, CultureInfo.InvariantCulture);
     }
