@@ -14,7 +14,8 @@ public static class Parser
         var dates = input
             .First()
             .Replace("Row Labels", "")
-            .Split("\t", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Split("\t", StringSplitOptions.TrimEntries)
+            .Skip(1)
             .Select(ParseDate)
             .ToList();
 
@@ -41,8 +42,8 @@ public static class Parser
 
             workLogs.AddRange(
                 timeLine.Value
-                    .Where(x => x != 0)
-                    .Select((time, i) => new WorkLog(dates[i], timeLine.Key, time)));
+                    .Select((time, i) => new WorkLog(dates[i], timeLine.Key, time))
+                    .Where(x => x.TimeInHours > 0));
         }
 
         return workLogs;
