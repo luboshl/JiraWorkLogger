@@ -13,6 +13,7 @@ public static class Parser
 
         var dates = input
             .First()
+            .Replace("Row Labels", "")
             .Split("\t", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Select(ParseDate)
             .ToList();
