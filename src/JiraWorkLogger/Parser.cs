@@ -41,6 +41,7 @@ public static class Parser
 
             workLogs.AddRange(
                 timeLine.Value
+                    .Where(x => x != 0)
                     .Select((time, i) => new WorkLog(dates[i], timeLine.Key, time)));
         }
 
