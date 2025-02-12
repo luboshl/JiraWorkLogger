@@ -6,14 +6,6 @@ A simple console application created for my own needs. It allows to create work 
 
 <img src="./assets/images/excel-range-select.png" alt="Excel - select range" width="200" height="auto">
 
-For the records in the image above, it creates the following work logs in Jira issues:
-- MBC-23: Jan 2 -> 8h
-- MBC-23: Jan 3 -> 3h
-- MBC-23: Jan 4 -> 7h
-- MBC-24: Jan 2 -> 4h 30m
-- MBC-24: Jan 3 -> 8h
-- MBC-24: Jan 4 -> 6h
-
 ## Configuration
 
 ### 1. Get API token for Atlassian Account
@@ -40,9 +32,11 @@ dotnet user-secrets set "app:apiToken" "XYZ.........."
 - Alternatively you can copy text directly from any editor
   - For the sample above it should looks like this
     ```text
-    \t2.1.\t3.1.\t4.1.
-    MBC-23\t8\t3\t7
-    MBC-24\t4,5\t8\t6
+    Datum\tHodin\tPopis činnosti\tWork Item
+    01.01.2025\t3,21\tSome description\tMBC-23
+    01.01.2025\t3,26\tSome description\tMBC-24
+    02.01.2025\t2,2\tSome description\tMBC-23
+    02.01.2025\t4,1\tSome description\tMBC-24
     ```
 - Paste text from Excel (or the direct text) into console when asked by the application
 - Press <kbd>Enter</kbd>
