@@ -11,41 +11,33 @@ public static class Parser
             throw new Exception("There must be at least 2 lines.");
         }
 
-        var dates = input
+        var header = input
             .First()
-            .Replace("Row Labels", "")
             .Split("\t", StringSplitOptions.TrimEntries)
-            .Skip(1)
-            .Select(ParseDate)
-            .ToList();
+            .ToArray();
 
-        var timeLines = input
+        var expectedHeader = new[] { "Datum", "Hodin", "Popis činnosti", "Work Item" };
+
+        for (var i = 0; i < expectedHeader.Length; i++)
+        {
+            if (header[i] != expectedHeader[i])
+            {
+                throw new Exception($"Expected header '{expectedHeader[i]}' but got '{header[i]}'.");
+            }
+        }
+
+        var workLogs = input
             .Skip(1)
             .Select(line => line
                 .Split("\t", StringSplitOptions.TrimEntries)
                 .ToList())
-            .Select(line => new
-            {
-                IssueKey = line.First(),
-                Times = line.Skip(1).Select(ParseDecimal).ToList()
-            })
-            .ToDictionary(x => x.IssueKey, x => x.Times);
-
-        var workLogs = new List<WorkLog>();
-
-        foreach (var timeLine in timeLines)
-        {
-            if (timeLine.Value.Count != dates.Count)
-            {
-                throw new Exception($"The number of times does not match the number of dates for '{timeLine.Key}'.");
-            }
-
-            workLogs.AddRange(
-                timeLine.Value
-                    .Select((time, i) => new WorkLog(dates[i], timeLine.Key, time))
-                    .Where(x => x.TimeInHours > 0));
-        }
-
+            .Select(line => new WorkLog(
+                ParseDate(line[0]),
+                ParseDecimal(line[1]),
+                line[2],
+                line[3]))
+            .ToList();
+        
         return workLogs;
     }
 

@@ -11,9 +11,12 @@ public class WorkLogger(
 {
     public async Task Run()
     {
-        logger.LogInformation("Configured base URL: {BaseUrl}", configuration["app:baseUrl"]); 
-        logger.LogInformation("Configured username: {Username}", configuration["app:username"]); 
+        logger.LogInformation("Configured base URL: {BaseUrl}", configuration["app:baseUrl"]);
+        logger.LogInformation("Configured username: {Username}", configuration["app:username"]);
         logger.LogInformation("Paste input and press Enter");
+
+        Console.InputEncoding = Encoding.UTF8;
+        Console.OutputEncoding = Encoding.UTF8;
 
         var currentLine = Console.ReadLine();
         var input = new List<string>();
@@ -28,7 +31,7 @@ public class WorkLogger(
 
         foreach (var workLog in workLogs)
         {
-            logger.LogInformation("{IssueKey} {Date} -> {Time}", workLog.IssueKey, workLog.Date, workLog.TimeInHours);
+            logger.LogInformation("{IssueKey} {Description} {Date} -> {Time}", workLog.IssueKey, workLog.Description, workLog.Date, workLog.TimeInHours);
         }
 
         foreach (var group in workLogs.GroupBy(x => x.IssueKey).OrderBy(x => x.Key))
@@ -40,23 +43,39 @@ public class WorkLogger(
         logger.LogInformation("Press Enter to continue or Ctrl+C to cancel");
         Console.ReadLine();
 
-        foreach (var workLog in workLogs.OrderBy(x => x.IssueKey).ThenBy(x => x.Date))
+        foreach (var workLog in workLogs)
         {
             var issueKey = workLog.IssueKey;
+            var description = workLog.Description;
             var currentOffset = DateTimeOffset.Now.Offset;
             var dateTime = new DateTimeOffset(workLog.Date, new TimeOnly(0), currentOffset);
             var timeToLog = TimeSpan.FromHours((double)workLog.TimeInHours);
 
-            await LogWork(issueKey, dateTime, timeToLog);
+            await LogWork(issueKey, description, dateTime, timeToLog);
         }
     }
 
-    private async Task LogWork(string issueKey, DateTimeOffset datetime, TimeSpan timeToLog)
+    private async Task LogWork(string issueKey, string description, DateTimeOffset datetime, TimeSpan timeToLog)
     {
-        logger.LogInformation("Log {IssueKey}: {TimeToLog} at {DateTime}", issueKey, timeToLog, datetime);
+        logger.LogInformation("Log {IssueKey} {Description}: {TimeToLog} at {DateTime}", issueKey, description, timeToLog, datetime);
 
         var json = $$"""
                      {
+                       "comment": {
+                         "content": [
+                           {
+                             "content": [
+                               {
+                                 "text": "{{description}}",
+                                 "type": "text"
+                               }
+                             ],
+                             "type": "paragraph"
+                           }
+                         ],
+                         "type": "doc",
+                         "version": 1
+                       },
                        "started": "{{datetime:yyyy-MM-dd'T'HH:mm:ss.000zz00}}",
                        "timeSpentSeconds": {{(int)timeToLog.TotalSeconds}}
                      }
